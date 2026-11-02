@@ -407,7 +407,7 @@ function reply(t){t=t.toLowerCase();
  if(/ăn|đói|cơm|bún|phở|rẻ/.test(t))return "Kéo thanh ngân sách ở mục Hôm nay ăn gì? để nhận gợi ý, hoặc xem quán thật quanh NEU kèm địa chỉ.";
  return "Mình chưa hiểu rõ. Bạn thử hỏi về chi tiêu, ăn uống, xe buýt hoặc quán học bài nhé."}
 var AI=null,hist=[];
-var NEU_AI_ENDPOINT=""; /* Tùy chọn: dán địa chỉ Cloudflare Worker, ví dụ https://neu-ai.ten-ban.workers.dev */
+var NEU_AI_ENDPOINT="https://black-truth-368d.nguyenduyhung190108.workers.dev/"; /* Tùy chọn: dán địa chỉ Cloudflare Worker, ví dụ https://neu-ai.ten-ban.workers.dev */
 function hasAI(){return !!(NEU_AI_ENDPOINT||AI)}
 function netErr(e){return /Failed to fetch|NetworkError|Load failed/i.test(String(e&&e.message))}
 function errMsg(e){return netErr(e)?"Không kết nối được tới AI. Hãy thử lại sau.":String((e&&e.message)||e)}
