@@ -227,7 +227,7 @@ h2,.sec-t{color:#f6e7bd}
 <p class="note">Các tuyến khác cũng đi qua khu vực trường: 03, 03B, 08, 19, 24, 26, 28, 41.</p></section>
 
 </div>
-<div class="view wrap" id="v-hoi" hidden><section id="hoi"><h2>Hỏi nhanh trợ lý</h2><p class="lead">Trợ lý AI đọc số liệu sổ chi tiêu và danh sách quán quanh NEU của bạn để trả lời. Với câu hỏi cần thông tin mới (giá cả, học phí, thủ tục...), AI có thể tìm trên mạng và ghi rõ nguồn. Nếu AI không khả dụng, trợ lý trả lời theo từ khóa.</p>
+<div class="view wrap" id="v-hoi" hidden><section id="hoi"><h2>Hỏi nhanh trợ lý</h2><p class="lead">Trợ lý AI đọc số liệu sổ chi tiêu và danh sách quán quanh NEU của bạn để trả lời. Với câu hỏi cần thông tin mới (giá cả, học phí, thủ tục...), AI sẽ tự tra cứu trên mạng rồi tổng hợp vào câu trả lời. Nếu AI không khả dụng, trợ lý trả lời theo từ khóa.</p>
 <div class="panel" style="max-width:640px"><div class="chat" id="c-chat" aria-live="polite"><div class="msg ai">Chào bạn! Bạn cần hỏi về ăn uống, chi tiêu, xe buýt hay quán quanh NEU?</div></div>
 <div id="c-quick"><button class="chip">Phân tích chi tiêu</button><button class="chip">Ăn gì rẻ mà no?</button><button class="chip">Xe buýt đến NEU</button><button class="chip">Quán học bài</button></div>
 <label class="sub" style="display:flex;gap:8px;align-items:center;margin:0 0 10px"><input type="checkbox" id="c-web" checked> 🌐 Cho AI tìm thông tin trên mạng khi cần (giá cả, thủ tục, tin mới)</label>
@@ -438,11 +438,9 @@ function callAI(prompt,onText,opt){
  return Promise.reject(new Error("Chưa có AI khả dụng."))}
 if(window.claude&&claude.use){claude.use("sample").then(function(s){AI=s}).catch(function(){})}
 function addSrc(box,r){
+ if(!r||!r.webNote)return;
  var d=document.createElement("div");d.style.cssText="margin-top:8px;font-size:.8rem;color:var(--muted);white-space:normal";
- if(r&&r.sources&&r.sources.length){d.appendChild(document.createTextNode("🌐 Nguồn trên mạng:"));
-  r.sources.forEach(function(s,i){if(!/^https?:\/\//i.test(s.url))return;var a=document.createElement("a");a.href=s.url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="["+(i+1)+"] "+String(s.title||s.url).slice(0,70);a.style.cssText="color:var(--brand);display:block";d.appendChild(a)})}
- else if(r&&r.webNote){d.textContent="ℹ️ "+r.webNote}
- if(d.childNodes.length)box.appendChild(d)}
+ d.textContent="ℹ️ "+r.webNote;box.appendChild(d)}
 function ctx(){var pl=items.filter(function(i){return i.m!==null}).slice(0,30).map(function(i){return i.n+" ("+i.a+", cách NEU "+i.m+" m, "+i.p+")"}).join("; ");
  var s=last&&last.spent?"Chi tiêu tháng này: tiền sinh hoạt "+vnd(last.inc)+", mục tiêu tiết kiệm "+S.goal+"%, ngân sách chi "+vnd(last.budget)+", đã chi "+vnd(last.spent)+", còn lại "+vnd(last.left)+", nên chi tối đa "+vnd(last.perDay)+" mỗi ngày.":"Người dùng chưa nhập chi tiêu.";
  return "Dữ liệu của trang Dynamic NEU (sinh viên Đại học Kinh tế Quốc dân, 207 Giải Phóng, Hà Nội). Trả lời tiếng Việt, dưới 120 từ. Quán và khoảng cách chỉ lấy từ dữ liệu này; giá cả, thủ tục và tin mới chỉ lấy từ phần thông tin trên mạng nếu có. Thiếu dữ liệu thì nói rõ.\nQuán quanh NEU: "+pl+"\nTuyến xe buýt qua NEU: 18, 47B, 21A, 21B, 25, 32, 23, 03, 03B, 08, 19, 24, 26, 28, 41.\n"+s}
@@ -460,7 +458,7 @@ $("x-aibtn").onclick=function(){var o=$("x-ai");o.style.display="block";
  if(!hasAI()){o.textContent="AI chưa sẵn sàng. Hãy xem nhận xét tự động ở trên.";return}
  o.textContent=webOn?"AI đang phân tích và tìm mức chi phổ biến trên mạng...":"AI đang phân tích...";
  var rows=cats.map(function(c){return c[1]+": đã chi "+vnd(last.tot[c[0]])+" / ngân sách "+vnd(last.catBud[c[0]])}).join("; ");
- var q=ctx()+"\nDữ liệu chi tiêu: tiền sinh hoạt "+vnd(S.inc)+", mục tiêu tiết kiệm "+S.goal+"%, theo nhóm: "+rows+".\nNhiệm vụ: đánh giá ngắn gọn tình hình, nếu có thông tin trên mạng thì so sánh với mức chi phổ biến của sinh viên Hà Nội và ghi nguồn [số]. Nêu 3 việc cụ thể nên làm để tiết kiệm, ưu tiên gợi ý từ quán và tuyến xe buýt có trong dữ liệu. Dưới 180 từ, đánh số 1 đến 3.";
+ var q=ctx()+"\nDữ liệu chi tiêu: tiền sinh hoạt "+vnd(S.inc)+", mục tiêu tiết kiệm "+S.goal+"%, theo nhóm: "+rows+".\nNhiệm vụ: đánh giá ngắn gọn tình hình, nếu có thông tin trên mạng thì lồng vào nhận xét mức chi phổ biến của sinh viên Hà Nội để so sánh, không dán link hay số trích dẫn. Nêu 3 việc cụ thể nên làm để tiết kiệm, ưu tiên gợi ý từ quán và tuyến xe buýt có trong dữ liệu. Dưới 180 từ, đánh số 1 đến 3.";
  callAI(q,function(tx){o.textContent=tx},{question:"Mức chi tiêu trung bình của sinh viên Hà Nội",query:"mức chi tiêu trung bình mỗi tháng của sinh viên Hà Nội giá cơm sinh viên giá phòng trọ "+new Date().getFullYear(),web:webOn?true:false})
  .then(function(x){o.textContent=(x.text||"AI chưa trả lời, hãy thử lại.")+"\n\n— "+x.src;addSrc(o,x)}).catch(function(e){o.textContent="Lỗi: "+errMsg(e)})};
 
