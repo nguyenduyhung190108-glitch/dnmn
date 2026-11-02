@@ -369,7 +369,7 @@ function calc(){
  else if(proj<=S.inc){v.className="verdict v-mid";v.textContent="Cân bằng nhưng chưa đạt mục tiêu: dự kiến chi "+vnd(proj)+", vượt hạn mức tiết kiệm "+vnd(proj-limit)+". Điểm "+score+"/100."}
  else{v.className="verdict v-bad";v.textContent="Chi quá tay: dự kiến chi "+vnd(proj)+", vượt tiền sinh hoạt "+vnd(proj-S.inc)+". Điểm "+score+"/100."}
  $("x-kpi").innerHTML="";
- [["Đã chi",vnd(spent)],["Hạn mức chi",vnd(limit)],["Còn lại",vnd(left)],["Dự báo cuối tháng",vnd(proj)],["Nên chi mỗi ngày",vnd(perDay)]].forEach(function(k){var d=document.createElement("div");d.className="kpi";d.innerHTML="<small></small><b></b>";d.querySelector("small").textContent=k[0];d.querySelector("b").textContent=k[1];$("x-kpi").appendChild(d)});
+ [["Đã chi",vnd(spent)],["Hạn mức chi",vnd(limit)],["Còn lại",vnd(left)],["Nên chi mỗi ngày",vnd(perDay)]].forEach(function(k){var d=document.createElement("div");d.className="kpi";d.innerHTML="<small></small><b></b>";d.querySelector("small").textContent=k[0];d.querySelector("b").textContent=k[1];$("x-kpi").appendChild(d)});
  var acc=0,st=[];cats.forEach(function(c){var s=spent?tot[c[0]]/spent*100:0;if(s>0){st.push(c[3]+" "+acc+"% "+(acc+s)+"%");acc+=s}});
  $("x-donut").style.background=st.length?"conic-gradient("+st.join(",")+")":"var(--soft)";
  var B=$("x-bars");B.innerHTML="";var tips=[];
