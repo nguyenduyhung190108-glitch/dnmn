@@ -422,7 +422,7 @@ function callAI(prompt,onText){
  return Promise.reject(new Error("Chưa có AI khả dụng."))}
 if(window.claude&&claude.use){claude.use("sample").then(function(s){AI=s}).catch(function(){})}
 function ctx(){var pl=items.filter(function(i){return i.m!==null}).slice(0,30).map(function(i){return i.n+" ("+i.a+", cách NEU "+i.m+" m, "+i.p+")"}).join("; ");
- var s=last&&last.spent?"Chi tiêu tháng này: đã chi "+vnd(last.spent)+", hạn mức "+vnd(last.limit)+", dự báo cuối tháng "+vnd(last.proj)+", điểm tiết kiệm "+last.score+"/100.":"Người dùng chưa nhập chi tiêu.";
+ var s=last&&last.spent?"Chi tiêu tháng này: đã chi "+vnd(last.spent)+", hạn mức "+vnd(last.limit)+", điểm tiết kiệm "+last.score+"/100.":"Người dùng chưa nhập chi tiêu.";
  return "Bạn là trợ lý của trang Dynamic NEU, hỗ trợ sinh viên Đại học Kinh tế Quốc dân (207 Giải Phóng, Hà Nội) về chi tiêu, ăn uống, đi lại, giải trí. Trả lời bằng tiếng Việt, dưới 120 từ, không bịa địa chỉ hay giá ngoài dữ liệu dưới đây. Thiếu dữ liệu thì nói rõ.\nQuán quanh NEU: "+pl+"\nTuyến xe buýt qua NEU: 18, 47B, 21A, 21B, 25, 32, 23, 03, 03B, 08, 19, 24, 26, 28, 41.\n"+s}
 function ask(t){if(!t.trim())return;var c=$("c-chat"),a=document.createElement("div");a.className="msg me";a.textContent=t;c.appendChild(a);
  var b=document.createElement("div");b.className="msg ai";b.textContent="Đang trả lời...";c.appendChild(b);c.scrollTop=c.scrollHeight;
