@@ -53,7 +53,7 @@ footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);f
 @media(max-width:640px){.card{grid-template-columns:76px 1fr}.map{grid-column:1/-1;text-align:center}.top nav a:not(:last-child){display:none}.count{margin-left:0}}
 
 label.l{font-size:.88rem;font-weight:500;display:flex;justify-content:space-between;margin-top:6px}
-input[type=number],input[type=text],select.sel{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin:6px 0 12px;min-width:0}
+input[type=number],input[type=text],input[type=date],select.sel{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin:6px 0 12px;min-width:0}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px}
 .panel h3{margin:0 0 4px;font-size:1.1rem}.sub{color:var(--muted);font-size:.9rem;margin:0 0 14px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
@@ -172,9 +172,11 @@ h2,.sec-t{color:#f6e7bd}
 <div class="panel"><h3>Thiết lập tháng này</h3>
 <label class="l" for="x-inc">Tiền sinh hoạt một tháng (đồng)</label><input type="text" id="x-inc" value="3.000.000" inputmode="numeric" autocomplete="off">
 <label class="l" for="x-goal">Mục tiêu tiết kiệm <b id="x-gv">20%</b></label><input type="range" id="x-goal" min="0" max="50" step="5" value="20" style="width:100%;margin:8px 0 14px">
+<label class="l" for="x-rent">Tiền trọ, điện nước cố định mỗi tháng (đồng, không bắt buộc)</label><input type="text" id="x-rent" inputmode="numeric" autocomplete="off" placeholder="Ví dụ 1.000.000">
 <h3 style="margin-top:8px">Thêm khoản chi</h3>
 <label class="l" for="x-amt">Số tiền (đồng)</label><input type="text" id="x-amt" inputmode="numeric" autocomplete="off" placeholder="Ví dụ 35.000">
 <label class="l" for="x-cat">Nhóm</label><select id="x-cat" class="sel"></select>
+<label class="l" for="x-date">Ngày chi</label><input type="date" id="x-date">
 <label class="l" for="x-note">Ghi chú (không bắt buộc)</label><input type="text" id="x-note" placeholder="Ví dụ cơm trưa">
 <button class="btn full" id="x-add">Thêm khoản chi</button>
 <div style="display:flex;gap:8px;margin-top:10px"><button class="btn ghost" id="x-demo">Nạp dữ liệu mẫu</button><button class="btn ghost" id="x-clear">Xóa tất cả</button></div>
@@ -182,7 +184,7 @@ h2,.sec-t{color:#f6e7bd}
 <h3 style="margin-top:10px">Khoản chi gần đây</h3><div id="x-list"></div></div>
 <div class="panel"><h3>Phân tích</h3><div id="x-verdict"></div><div class="kpis" id="x-kpi"></div>
 <div class="donut" id="x-donut" role="img" aria-label="Biểu đồ tỷ lệ chi tiêu theo nhóm"></div>
-<div id="x-bars"></div><p class="sub" style="margin:10px 0 0">Vạch đen là mức gợi ý tham khảo cho sinh viên, không phải quy định.</p>
+<div id="x-bars"></div><p class="sub" style="margin:10px 0 0">Mỗi thanh là % ngân sách của nhóm đã dùng (ngân sách chia theo tỷ lệ gợi ý cho sinh viên, không phải quy định). Vạch đen là tiến độ của tháng: thanh vượt vạch nghĩa là chi nhanh hơn nhịp tháng. Thanh đỏ là đã vượt ngân sách.</p>
 <h3 style="margin-top:14px">Nhận xét</h3><ul class="tips" id="x-tips"></ul>
 <button class="btn full" id="x-aibtn" style="margin-top:12px">Phân tích bằng AI</button><div class="note" id="x-ai" aria-live="polite" style="display:none;white-space:pre-wrap"></div>
 </div></div></section>
@@ -228,9 +230,10 @@ h2,.sec-t{color:#f6e7bd}
 <p class="note">Các tuyến khác cũng đi qua khu vực trường: 03, 03B, 08, 19, 24, 26, 28, 41.</p></section>
 
 </div>
-<div class="view wrap" id="v-hoi" hidden><section id="hoi"><h2>Hỏi nhanh trợ lý</h2><p class="lead">Trợ lý AI đọc số liệu sổ chi tiêu và danh sách quán quanh NEU của bạn để trả lời. Nếu AI không khả dụng, trợ lý trả lời theo từ khóa.</p>
+<div class="view wrap" id="v-hoi" hidden><section id="hoi"><h2>Hỏi nhanh trợ lý</h2><p class="lead">Trợ lý AI đọc số liệu sổ chi tiêu và danh sách quán quanh NEU của bạn để trả lời. Với câu hỏi cần thông tin mới (giá cả, học phí, thủ tục...), AI có thể tìm trên mạng và ghi rõ nguồn. Nếu AI không khả dụng, trợ lý trả lời theo từ khóa.</p>
 <div class="panel" style="max-width:640px"><div class="chat" id="c-chat" aria-live="polite"><div class="msg ai">Chào bạn! Bạn cần hỏi về ăn uống, chi tiêu, xe buýt hay quán quanh NEU?</div></div>
 <div id="c-quick"><button class="chip">Phân tích chi tiêu</button><button class="chip">Ăn gì rẻ mà no?</button><button class="chip">Xe buýt đến NEU</button><button class="chip">Quán học bài</button></div>
+<label class="sub" style="display:flex;gap:8px;align-items:center;margin:0 0 10px"><input type="checkbox" id="c-web" checked> 🌐 Cho AI tìm thông tin trên mạng khi cần (giá cả, thủ tục, tin mới)</label>
 <div class="ask"><input type="text" id="c-q" placeholder="Nhập câu hỏi" aria-label="Câu hỏi"><button class="btn" id="c-send">Gửi</button></div></div>
 </section>
 <section id="dichvu"><h2>Dịch vụ khác cho sinh viên</h2><div class="grid">
@@ -338,59 +341,87 @@ function suggest(){var ks=Object.keys(sel).filter(function(k){return sel[k]});
 $("m-go").onclick=suggest;suggest();
 /* Sổ chi tiêu */
 var cats=[["an","Ăn uống",35,"#e8452c"],["tro","Nhà trọ, điện nước",30,"#0b2a6f"],["dilai","Đi lại",8,"#2e8bff"],["hoc","Học tập",10,"#18a37b"],["giaitri","Giải trí",8,"#8b5cf6"],["muasam","Mua sắm",5,"#ffc21a"],["khac","Khác",4,"#7a8499"]];
-var tipmap={an:"Ăn uống chiếm tỷ lệ cao. Thử nấu chung vài bữa mỗi tuần hoặc chọn quán dưới 35.000đ.",tro:"Tiền trọ chiếm phần lớn. Cân nhắc ở ghép hoặc hỏi lại giá điện nước.",dilai:"Đi lại tốn khá nhiều. Hãy so sánh vé tháng xe buýt ở mục Xe buýt.",hoc:"Chi cho học tập khá cao. Kiểm tra xem có thể mượn giáo trình ở thư viện không.",giaitri:"Giải trí vượt mức gợi ý. Đặt hạn mức cho mỗi cuối tuần.",muasam:"Mua sắm vượt mức gợi ý. Đợi 24 giờ trước khi mua món chưa thật cần.",khac:"Nhóm Khác khá lớn. Hãy ghi chú rõ để biết tiền đi đâu."};
-var S={inc:3000000,goal:20,ex:[]};
+var tipmap={an:"Ăn uống đang cao. Thử nấu chung vài bữa mỗi tuần hoặc chọn quán dưới 35.000đ.",tro:"Tiền trọ chiếm phần lớn. Cân nhắc ở ghép hoặc hỏi lại giá điện nước.",dilai:"Đi lại tốn khá nhiều. Hãy so sánh vé tháng xe buýt ở mục Xe buýt.",hoc:"Chi cho học tập khá cao. Kiểm tra xem có thể mượn giáo trình ở thư viện không.",giaitri:"Giải trí vượt mức gợi ý. Đặt hạn mức cho mỗi cuối tuần.",muasam:"Mua sắm vượt mức gợi ý. Đợi 24 giờ trước khi mua món chưa thật cần.",khac:"Nhóm Khác khá lớn. Hãy ghi chú rõ để biết tiền đi đâu."};
+var S={inc:3000000,goal:20,rent:0,ex:[]};
+/* Ngày theo giờ máy (không dùng UTC) */
+function ymd(d){var m=d.getMonth()+1,x=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(x<10?"0":"")+x}
+function todayStr(){return ymd(new Date())}
 var cs=$("x-cat");cats.forEach(function(c){var o=document.createElement("option");o.value=c[0];o.textContent=c[1];cs.appendChild(o)});
-try{var raw=localStorage.getItem("neu_expense");if(raw){var p=JSON.parse(raw);if(p&&p.ex)S=p}}catch(e){}
+try{var raw=localStorage.getItem("neu_expense");if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.ex)){
+ if(+p.inc>=0)S.inc=+p.inc;if(+p.goal>=0&&+p.goal<=90)S.goal=+p.goal;S.rent=+p.rent>0?+p.rent:0;
+ S.ex=p.ex.filter(function(e){return e&&+e.a>0&&typeof e.d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(e.d)&&cats.some(function(c){return c[0]===e.c})})}}}catch(e){}
 function save(){try{localStorage.setItem("neu_expense",JSON.stringify(S))}catch(e){}}
-$("x-inc").value=S.inc.toLocaleString("vi-VN");$("x-goal").value=S.goal;$("x-gv").textContent=S.goal+"%";
+$("x-inc").value=S.inc.toLocaleString("vi-VN");$("x-rent").value=S.rent?S.rent.toLocaleString("vi-VN"):"";
+$("x-goal").value=S.goal;$("x-gv").textContent=S.goal+"%";$("x-date").value=todayStr();$("x-date").max=todayStr();
 $("x-inc").oninput=function(){money(this);S.inc=num(this);save();calc()};
+$("x-rent").oninput=function(){money(this);S.rent=num(this);save();calc()};
 $("x-goal").oninput=function(){S.goal=+this.value;$("x-gv").textContent=S.goal+"%";save();calc()};
 function msg(t){$("x-msg").textContent=t}
-function add(a,c,n){S.ex.push({id:Date.now()+Math.random(),a:a,c:c,n:n||"",d:new Date().toISOString().slice(0,10)});save();calc()}
+function add(a,c,n,d){S.ex.push({id:Date.now()+Math.random(),a:a,c:c,n:n||"",d:d||todayStr()});save();calc()}
 $("x-add").onclick=function(){var a=num($("x-amt"));if(!(a>0)){msg("Nhập số tiền lớn hơn 0 để thêm khoản chi.");return}
- add(a,cs.value,$("x-note").value.trim());$("x-amt").value="";$("x-note").value="";msg("Đã thêm khoản chi.")};
+ var d=$("x-date").value||todayStr();if(d>todayStr()){msg("Ngày chi không được ở tương lai.");return}
+ add(a,cs.value,$("x-note").value.trim(),d);$("x-amt").value="";$("x-note").value="";
+ msg(d.slice(0,7)===todayStr().slice(0,7)?"Đã thêm khoản chi.":"Đã lưu, nhưng khoản này thuộc tháng khác nên không tính vào tháng này.")};
 $("x-amt").oninput=function(){money(this)};
 $("x-amt").onkeydown=function(e){if(e.key==="Enter")$("x-add").onclick()};
-$("x-demo").onclick=function(){S.ex=[];[[1000000,"tro","Tiền trọ"],[220000,"an","Ăn uống tuần đầu"],[40000,"dilai","Xe buýt"],[60000,"hoc","Giáo trình, in ấn"],[50000,"giaitri","Xem phim, cà phê"],[60000,"muasam","Đồ dùng cá nhân"],[20000,"khac","Linh tinh"]].forEach(function(x){S.ex.push({id:Date.now()+Math.random(),a:x[0],c:x[1],n:x[2],d:new Date().toISOString().slice(0,10)})});save();calc();msg("Đã nạp dữ liệu mẫu.")};
+$("x-demo").onclick=function(){var now=new Date(),day=now.getDate(),y=now.getFullYear(),m=now.getMonth();
+ function dt(k){return ymd(new Date(y,m,Math.min(Math.max(k,1),day)))}
+ S.ex=[];function put(k,c,a,n){S.ex.push({id:Date.now()+Math.random(),a:a,c:c,n:n,d:dt(k)})}
+ put(1,"tro",1000000,"Tiền trọ");put(2,"hoc",60000,"Giáo trình, in ấn");put(5,"muasam",60000,"Đồ dùng cá nhân");
+ for(var k=1;k<=day;k++){put(k,"an",40000,"Ăn uống");if(k%3===0)put(k,"dilai",14000,"Xe buýt");if(k%7===0)put(k,"giaitri",50000,"Cà phê, xem phim")}
+ if(!S.rent){S.rent=1000000;$("x-rent").value="1.000.000"}
+ save();calc();msg("Đã nạp dữ liệu mẫu.")};
 $("x-clear").onclick=function(){S.ex=[];save();calc();msg("Đã xóa tất cả khoản chi.")};
 var last=null;
+/* ===== Mô hình tính toán =====
+ Ngân sách chi = Tiền sinh hoạt x (1 - mục tiêu tiết kiệm). Mỗi nhóm có ngân sách = ngân sách chi x tỷ lệ gợi ý.
+ Tiền trọ là khoản cố định: lấy max(đã ghi, số dự kiến). Các nhóm còn lại dự báo theo nhịp chi/ngày,
+ trộn với nhịp theo ngân sách trong 7 ngày đầu để đầu tháng không bị lệch. */
 function calc(){
- var now=new Date(),ym=now.toISOString().slice(0,7),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),day=now.getDate();
+ var now=new Date(),ym=ymd(now).slice(0,7),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),day=now.getDate(),daysLeft=dim-day+1;
  var ex=S.ex.filter(function(e){return e.d.slice(0,7)===ym});
- var tot={};cats.forEach(function(c){tot[c[0]]=0});ex.forEach(function(e){tot[e.c]=(tot[e.c]||0)+e.a});
- var spent=0;cats.forEach(function(c){spent+=tot[c[0]]});
- var fixed=tot.tro,varSp=spent-fixed,proj=fixed+varSp+varSp/Math.max(day,7)*(dim-day);
- var limit=S.inc*(1-S.goal/100),left=limit-spent,perDay=Math.max(0,left)/(dim-day+1);
- var ratio=limit>0?proj/limit:0,score=ratio<=1?Math.max(80,Math.round(100-Math.max(0,ratio-.8)*100)):Math.max(0,Math.round(80-(ratio-1)*160));
+ var tot={},spent=0;cats.forEach(function(c){tot[c[0]]=0});
+ ex.forEach(function(e){tot[e.c]+=e.a;spent+=e.a});
+ var inc=S.inc,saveTarget=inc*S.goal/100,budget=inc-saveTarget,catBud={};
+ cats.forEach(function(c){catBud[c[0]]=budget*c[2]/100});
+ var fixedPlan=S.rent>0?Math.max(tot.tro,S.rent):tot.tro,varSp=spent-tot.tro;
+ var varBudget=Math.max(0,budget-fixedPlan),w=Math.min(day/7,1);
+ var rate=w*(varSp/day)+(1-w)*(varBudget/dim);
+ var proj=fixedPlan+varSp+rate*(dim-day);
+ var left=budget-spent,perDay=Math.max(0,budget-fixedPlan-varSp)/daysLeft;
+ var ratio=budget>0?proj/budget:(proj>0?9:0);
+ var score=ratio<=.85?100:ratio<=1?Math.round(100-(ratio-.85)/.15*20):Math.max(0,Math.round(80-(ratio-1)*160));
  var v=$("x-verdict");
- if(!spent){v.className="verdict v-mid";v.textContent="Chưa có khoản chi nào. Thêm khoản chi hoặc nạp dữ liệu mẫu để xem phân tích."}
- else if(proj<=limit){v.className="verdict v-good";v.textContent="Tiết kiệm tốt: với nhịp chi này, cuối tháng bạn dự kiến để dành khoảng "+vnd(S.inc-proj)+". Điểm "+score+"/100."}
- else if(proj<=S.inc){v.className="verdict v-mid";v.textContent="Cân bằng nhưng chưa đạt mục tiêu: dự kiến chi "+vnd(proj)+", vượt hạn mức tiết kiệm "+vnd(proj-limit)+". Điểm "+score+"/100."}
- else{v.className="verdict v-bad";v.textContent="Chi quá tay: dự kiến chi "+vnd(proj)+", vượt tiền sinh hoạt "+vnd(proj-S.inc)+". Điểm "+score+"/100."}
+ if(!(inc>0)){v.className="verdict v-mid";v.textContent="Nhập tiền sinh hoạt một tháng để bắt đầu tính."}
+ else if(!spent){v.className="verdict v-mid";v.textContent="Chưa có khoản chi nào trong tháng này. Thêm khoản chi hoặc nạp dữ liệu mẫu để xem phân tích."}
+ else if(proj<=budget){v.className="verdict v-good";v.textContent="Tiết kiệm tốt: với nhịp chi này, cuối tháng bạn dự kiến để dành khoảng "+vnd(inc-proj)+" (mục tiêu "+vnd(saveTarget)+"). Điểm "+score+"/100."}
+ else if(proj<=inc){v.className="verdict v-mid";v.textContent="Chưa đạt mục tiêu: dự kiến chi "+vnd(proj)+", vượt ngân sách "+vnd(proj-budget)+" nên chỉ để dành được khoảng "+vnd(inc-proj)+". Điểm "+score+"/100."}
+ else{v.className="verdict v-bad";v.textContent="Chi quá tay: dự kiến chi "+vnd(proj)+", vượt cả tiền sinh hoạt "+vnd(proj-inc)+". Điểm "+score+"/100."}
  $("x-kpi").innerHTML="";
- [["Đã chi",vnd(spent)],["Hạn mức chi",vnd(limit)],["Còn lại",vnd(left)],["Nên chi mỗi ngày",vnd(perDay)]].forEach(function(k){var d=document.createElement("div");d.className="kpi";d.innerHTML="<small></small><b></b>";d.querySelector("small").textContent=k[0];d.querySelector("b").textContent=k[1];$("x-kpi").appendChild(d)});
+ [["Đã chi",vnd(spent)],["Ngân sách chi",vnd(budget)],["Còn lại",vnd(left)],["Dự báo cuối tháng",vnd(proj)],["Tiết kiệm dự kiến",vnd(inc-proj)],["Nên chi mỗi ngày",vnd(perDay)]].forEach(function(k){var d=document.createElement("div");d.className="kpi";d.innerHTML="<small></small><b></b>";d.querySelector("small").textContent=k[0];d.querySelector("b").textContent=k[1];$("x-kpi").appendChild(d)});
  var acc=0,st=[];cats.forEach(function(c){var s=spent?tot[c[0]]/spent*100:0;if(s>0){st.push(c[3]+" "+acc+"% "+(acc+s)+"%");acc+=s}});
  $("x-donut").style.background=st.length?"conic-gradient("+st.join(",")+")":"var(--soft)";
  var B=$("x-bars");B.innerHTML="";var tips=[];
- cats.forEach(function(c){var s=spent?tot[c[0]]/spent*100:0,r=document.createElement("div");r.className="brow";
+ cats.forEach(function(c){var id=c[0],cb=catBud[id],t=tot[id],pct=cb>0?t/cb*100:0,over=t>cb+.5,pace=id!=="tro"&&day>=7&&cb>0&&t/day*dim>cb*1.15,r=document.createElement("div");r.className="brow";
   r.innerHTML='<div class="t"><span></span><span></span></div><div class="track"><i></i><u></u></div>';
-  r.querySelector(".t span").textContent=c[1];r.querySelectorAll(".t span")[1].textContent=Math.round(s)+"% · "+vnd(tot[c[0]]);
-  var i=r.querySelector("i");i.style.width=Math.min(100,s)+"%";i.style.background=c[3];r.querySelector("u").style.left=c[2]+"%";B.appendChild(r);
-  if(spent&&s>=c[2]+8)tips.push(tipmap[c[0]])});
- if(spent&&left<0)tips.unshift("Bạn đã chi vượt hạn mức tháng này "+vnd(-left)+". Tạm dừng các khoản chưa cần thiết.");
- if(spent&&!tips.length)tips.push("Cơ cấu chi tiêu khá hợp lý so với mức gợi ý. Giữ nhịp chi hiện tại để đạt mục tiêu tiết kiệm.");
+  r.querySelector(".t span").textContent=c[1];r.querySelectorAll(".t span")[1].textContent=vnd(t)+" / "+vnd(cb)+(cb>0?" · "+Math.round(pct)+"%":"");
+  var i=r.querySelector("i");i.style.width=(over&&cb<=0?100:Math.min(100,pct))+"%";i.style.background=over?"#e8452c":c[3];
+  var u=r.querySelector("u");if(id==="tro")u.style.display="none";else u.style.left=(day/dim*100)+"%";B.appendChild(r);
+  if(spent&&(over||pace))tips.push(tipmap[id]+(over?" Đã chi "+vnd(t)+", ngân sách nhóm "+vnd(cb)+".":" Với nhịp hiện tại, nhóm này sẽ vượt ngân sách."))});
+ if(spent&&left<0)tips.unshift("Bạn đã chi vượt ngân sách tháng này "+vnd(-left)+". Tạm dừng các khoản chưa cần thiết.");
+ if(spent&&!tips.length)tips.push("Cơ cấu chi tiêu khá hợp lý so với ngân sách. Giữ nhịp chi hiện tại để đạt mục tiêu tiết kiệm.");
+ if(spent&&!S.rent&&!tot.tro)tips.push("Bạn chưa ghi tiền trọ. Nhập mục Tiền trọ cố định để dự báo cuối tháng chính xác hơn.");
  if(!spent)tips.push("Ghi lại mọi khoản chi trong vài ngày để phân tích chính xác hơn.");
- if(spent&&day<7)tips.push("Mới đầu tháng nên dự báo có thể chưa chính xác, hãy theo dõi thêm.");
+ if(spent&&day<7)tips.push("Mới đầu tháng nên dự báo còn nhiều sai số, hãy theo dõi thêm.");
  $("x-tips").innerHTML="";tips.forEach(function(t){var li=document.createElement("li");li.textContent=t;$("x-tips").appendChild(li)});
  var L2=$("x-list");L2.innerHTML="";
- if(!ex.length)L2.innerHTML='<p class="sub">Chưa có khoản chi nào.</p>';
- ex.slice(-8).reverse().forEach(function(e){var cn=cats.filter(function(c){return c[0]===e.c})[0][1],r=document.createElement("div");r.className="exp";
+ if(!ex.length)L2.innerHTML='<p class="sub">Chưa có khoản chi nào trong tháng này.</p>';
+ ex.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0}).slice(-10).reverse().forEach(function(e){var cn=cats.filter(function(c){return c[0]===e.c})[0][1],r=document.createElement("div");r.className="exp";
   r.innerHTML='<span></span><span><b></b> <button aria-label="Xóa khoản chi">×</button></span>';
-  r.querySelector("span").textContent=cn+(e.n?" · "+e.n:"");r.querySelector("b").textContent=vnd(e.a);
+  r.querySelector("span").textContent=e.d.slice(8)+"/"+e.d.slice(5,7)+" · "+cn+(e.n?" · "+e.n:"");r.querySelector("b").textContent=vnd(e.a);
   r.querySelector("button").onclick=function(){S.ex=S.ex.filter(function(x){return x.id!==e.id});save();calc()};L2.appendChild(r)});
- last={spent:spent,proj:proj,limit:limit,left:left,tot:tot,score:score,perDay:perDay};
- var hb=document.getElementById("hc-bud");if(hb)hb.textContent=spent?vnd(perDay)+" mỗi ngày":"Chưa ghi chi tiêu";
+ last={inc:inc,spent:spent,proj:proj,limit:budget,budget:budget,left:left,tot:tot,catBud:catBud,score:score,perDay:perDay,saveTarget:saveTarget};
+ var hb=document.getElementById("hc-bud");if(hb)hb.textContent=inc>0?vnd(perDay)+" mỗi ngày":"Chưa nhập tiền sinh hoạt";
 }
 calc();
 /* Vé xe buýt */
@@ -407,38 +438,51 @@ function reply(t){t=t.toLowerCase();
  if(/ăn|đói|cơm|bún|phở|rẻ/.test(t))return "Kéo thanh ngân sách ở mục Hôm nay ăn gì? để nhận gợi ý, hoặc xem quán thật quanh NEU kèm địa chỉ.";
  return "Mình chưa hiểu rõ. Bạn thử hỏi về chi tiêu, ăn uống, xe buýt hoặc quán học bài nhé."}
 var AI=null,hist=[];
-var NEU_AI_ENDPOINT="https://black-truth-368d.nguyenduyhung190108.workers.dev/"; /* Tùy chọn: dán địa chỉ Cloudflare Worker, ví dụ https://neu-ai.ten-ban.workers.dev */
+var NEU_AI_ENDPOINT="https://black-truth-368d.nguyenduyhung190108.workers.dev/"; /* Địa chỉ Cloudflare Worker */
+var webOn=true;try{webOn=localStorage.getItem("neu_web")!=="0"}catch(e){}
+$("c-web").checked=webOn;
+$("c-web").onchange=function(){webOn=this.checked;try{localStorage.setItem("neu_web",webOn?"1":"0")}catch(e){}};
 function hasAI(){return !!(NEU_AI_ENDPOINT||AI)}
 function netErr(e){return /Failed to fetch|NetworkError|Load failed/i.test(String(e&&e.message))}
 function errMsg(e){return netErr(e)?"Không kết nối được tới AI. Hãy thử lại sau.":String((e&&e.message)||e)}
-function proxyCall(url,prompt,onText){
- return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompt})})
+/* opt: {question, query, web: "auto" | true | false} */
+function proxyCall(url,prompt,opt,onText){opt=opt||{};
+ var body={task:"chat",prompt:prompt,question:opt.question||"",query:opt.query||"",web:opt.web===undefined?false:opt.web};
+ return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||("Lỗi HTTP "+r.status));return j})})
- .then(function(j){var t=j.text||"";if(onText)onText(t);return{text:t}})}
-function callAI(prompt,onText){
- var sample=function(){return AI(prompt,{cache:false,onText:function(r){if(onText)onText(r.text)}}).then(function(r){return{text:r.text,src:"Trợ lý AI"}})};
- if(NEU_AI_ENDPOINT)return proxyCall(NEU_AI_ENDPOINT,prompt,onText).then(function(r){r.src="Trợ lý AI";return r},function(e){if(AI&&netErr(e))return sample();throw e});
+ .then(function(j){var t=j.text||"";if(onText)onText(t);return{text:t,sources:j.sources||[],usedWeb:!!j.used_web,webNote:j.web_note||""}})}
+function callAI(prompt,onText,opt){
+ var sample=function(){return AI(prompt,{cache:false,onText:function(r){if(onText)onText(r.text)}}).then(function(r){return{text:r.text,src:"Trợ lý AI",sources:[]}})};
+ if(NEU_AI_ENDPOINT)return proxyCall(NEU_AI_ENDPOINT,prompt,opt,onText).then(function(r){r.src=r.usedWeb?"Trợ lý AI + dữ liệu trên mạng":"Trợ lý AI";return r},function(e){if(AI&&netErr(e))return sample();throw e});
  if(AI)return sample();
  return Promise.reject(new Error("Chưa có AI khả dụng."))}
 if(window.claude&&claude.use){claude.use("sample").then(function(s){AI=s}).catch(function(){})}
+function addSrc(box,r){
+ var d=document.createElement("div");d.style.cssText="margin-top:8px;font-size:.8rem;color:var(--muted);white-space:normal";
+ if(r&&r.sources&&r.sources.length){d.appendChild(document.createTextNode("🌐 Nguồn trên mạng:"));
+  r.sources.forEach(function(s,i){if(!/^https?:\/\//i.test(s.url))return;var a=document.createElement("a");a.href=s.url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="["+(i+1)+"] "+String(s.title||s.url).slice(0,70);a.style.cssText="color:var(--brand);display:block";d.appendChild(a)})}
+ else if(r&&r.webNote){d.textContent="ℹ️ "+r.webNote}
+ if(d.childNodes.length)box.appendChild(d)}
 function ctx(){var pl=items.filter(function(i){return i.m!==null}).slice(0,30).map(function(i){return i.n+" ("+i.a+", cách NEU "+i.m+" m, "+i.p+")"}).join("; ");
- var s=last&&last.spent?"Chi tiêu tháng này: đã chi "+vnd(last.spent)+", hạn mức "+vnd(last.limit)+", điểm tiết kiệm "+last.score+"/100.":"Người dùng chưa nhập chi tiêu.";
- return "Bạn là trợ lý của trang Dynamic NEU, hỗ trợ sinh viên Đại học Kinh tế Quốc dân (207 Giải Phóng, Hà Nội) về chi tiêu, ăn uống, đi lại, giải trí. Trả lời bằng tiếng Việt, dưới 120 từ, không bịa địa chỉ hay giá ngoài dữ liệu dưới đây. Thiếu dữ liệu thì nói rõ.\nQuán quanh NEU: "+pl+"\nTuyến xe buýt qua NEU: 18, 47B, 21A, 21B, 25, 32, 23, 03, 03B, 08, 19, 24, 26, 28, 41.\n"+s}
+ var s=last&&last.spent?"Chi tiêu tháng này: tiền sinh hoạt "+vnd(last.inc)+", mục tiêu tiết kiệm "+S.goal+"%, ngân sách chi "+vnd(last.budget)+", đã chi "+vnd(last.spent)+", dự báo cuối tháng "+vnd(last.proj)+", tiết kiệm dự kiến "+vnd(last.inc-last.proj)+", điểm "+last.score+"/100, nên chi tối đa "+vnd(last.perDay)+" mỗi ngày.":"Người dùng chưa nhập chi tiêu.";
+ return "Dữ liệu của trang Dynamic NEU (sinh viên Đại học Kinh tế Quốc dân, 207 Giải Phóng, Hà Nội). Trả lời tiếng Việt, dưới 120 từ. Quán và khoảng cách chỉ lấy từ dữ liệu này; giá cả, thủ tục và tin mới chỉ lấy từ phần thông tin trên mạng nếu có. Thiếu dữ liệu thì nói rõ.\nQuán quanh NEU: "+pl+"\nTuyến xe buýt qua NEU: 18, 47B, 21A, 21B, 25, 32, 23, 03, 03B, 08, 19, 24, 26, 28, 41.\n"+s}
 function ask(t){if(!t.trim())return;var c=$("c-chat"),a=document.createElement("div");a.className="msg me";a.textContent=t;c.appendChild(a);
- var b=document.createElement("div");b.className="msg ai";b.textContent="Đang trả lời...";c.appendChild(b);c.scrollTop=c.scrollHeight;
+ var b=document.createElement("div");b.className="msg ai";b.textContent=webOn?"Đang trả lời (có thể tìm trên mạng)...":"Đang trả lời...";c.appendChild(b);c.scrollTop=c.scrollHeight;
  function fb(){b.textContent=reply(t);c.scrollTop=c.scrollHeight}
  if(!hasAI()){setTimeout(fb,300);return}
- callAI(ctx()+"\nLịch sử:\n"+hist.slice(-6).join("\n")+"\nCâu hỏi: "+t,function(tx){b.textContent=tx;c.scrollTop=c.scrollHeight}).then(function(r){b.textContent=r.text||reply(t);hist.push("Sinh viên: "+t,"Trợ lý: "+(r.text||""))}).catch(fb)}
+ callAI(ctx()+"\nLịch sử:\n"+hist.slice(-6).join("\n")+"\nCâu hỏi: "+t,function(tx){b.textContent=tx;c.scrollTop=c.scrollHeight},{question:t,web:webOn?"auto":false})
+ .then(function(r){b.textContent=r.text||reply(t);addSrc(b,r);c.scrollTop=c.scrollHeight;hist.push("Sinh viên: "+t,"Trợ lý: "+(r.text||""))}).catch(fb)}
 $("c-send").onclick=function(){ask($("c-q").value);$("c-q").value=""};
 $("c-q").onkeydown=function(e){if(e.key==="Enter"){ask($("c-q").value);$("c-q").value=""}};
 document.querySelectorAll("#c-quick .chip").forEach(function(c){c.onclick=function(){ask(c.textContent)}});
 $("x-aibtn").onclick=function(){var o=$("x-ai");o.style.display="block";
  if(!last||!last.spent){o.textContent="Hãy thêm vài khoản chi trước để AI có số liệu phân tích.";return}
- if(!hasAI()){o.textContent="AI chưa sẵn sàng. Hãy cho phép quyền AI khi trình duyệt hỏi, hoặc xem nhận xét tự động ở trên.";return}
- o.textContent="AI đang phân tích...";
- var rows=cats.map(function(c){return c[1]+": "+vnd(last.tot[c[0]])+" (gợi ý tối đa "+c[2]+"%)"}).join("; ");
- var q=ctx()+"\nDữ liệu chi tiêu: tiền sinh hoạt "+vnd(S.inc)+", mục tiêu tiết kiệm "+S.goal+"%, theo nhóm: "+rows+".\nNhiệm vụ: đánh giá ngắn gọn tình hình, nêu 3 việc cụ thể nên làm để tiết kiệm, ưu tiên gợi ý từ quán và tuyến xe buýt có trong dữ liệu. Dưới 180 từ, đánh số 1 đến 3.";
- callAI(q,function(tx){o.textContent=tx}).then(function(x){o.textContent=(x.text||"AI chưa trả lời, hãy thử lại.")+"\n\n— "+x.src}).catch(function(e){o.textContent="Lỗi: "+errMsg(e)})};
+ if(!hasAI()){o.textContent="AI chưa sẵn sàng. Hãy xem nhận xét tự động ở trên.";return}
+ o.textContent=webOn?"AI đang phân tích và tìm mức chi phổ biến trên mạng...":"AI đang phân tích...";
+ var rows=cats.map(function(c){return c[1]+": đã chi "+vnd(last.tot[c[0]])+" / ngân sách "+vnd(last.catBud[c[0]])}).join("; ");
+ var q=ctx()+"\nDữ liệu chi tiêu: tiền sinh hoạt "+vnd(S.inc)+", mục tiêu tiết kiệm "+S.goal+"%, theo nhóm: "+rows+".\nNhiệm vụ: đánh giá ngắn gọn tình hình, nếu có thông tin trên mạng thì so sánh với mức chi phổ biến của sinh viên Hà Nội và ghi nguồn [số]. Nêu 3 việc cụ thể nên làm để tiết kiệm, ưu tiên gợi ý từ quán và tuyến xe buýt có trong dữ liệu. Dưới 180 từ, đánh số 1 đến 3.";
+ callAI(q,function(tx){o.textContent=tx},{question:"Mức chi tiêu trung bình của sinh viên Hà Nội",query:"mức chi tiêu trung bình mỗi tháng của sinh viên Hà Nội giá cơm sinh viên giá phòng trọ "+new Date().getFullYear(),web:webOn?true:false})
+ .then(function(x){o.textContent=(x.text||"AI chưa trả lời, hãy thử lại.")+"\n\n— "+x.src;addSrc(o,x)}).catch(function(e){o.textContent="Lỗi: "+errMsg(e)})};
 
 })();
 (function(){
