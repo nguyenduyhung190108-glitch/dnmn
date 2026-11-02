@@ -383,11 +383,16 @@ function calc(){
  var tot={},spent=0;cats.forEach(function(c){tot[c[0]]=0});
  ex.forEach(function(e){tot[e.c]+=e.a;spent+=e.a});
  var inc=S.inc,saveTarget=inc*S.goal/100,budget=inc-saveTarget,catBud={};
- cats.forEach(function(c){catBud[c[0]]=budget*c[2]/100});
  var fixedPlan=S.rent>0?Math.max(tot.tro,S.rent):tot.tro,varSp=spent-tot.tro;
- var varBudget=Math.max(0,budget-fixedPlan),w=Math.min(day/7,1);
- var rate=w*(varSp/day)+(1-w)*(varBudget/dim);
- var proj=fixedPlan+varSp+rate*(dim-day);
+ /* Ngân sách trọ = tiền trọ thực tế/dự kiến; phần còn lại chia cho các nhóm khác theo tỷ lệ gợi ý (35+8+10+8+5+4=70) */
+ var troBud=(S.rent>0||tot.tro>0)?fixedPlan:budget*.3,restBud=Math.max(0,budget-troBud);
+ cats.forEach(function(c){catBud[c[0]]=c[0]==="tro"?troBud:restBud*c[2]/70});
+ /* Dự báo: trọ cố định; ăn uống và đi lại ngoại suy theo nhịp mỗi ngày (7 ngày đầu trộn với nhịp theo ngân sách nhóm);
+    học tập, giải trí, mua sắm, khác là chi lẻ nên giữ số thực tế, từ ngày 10 mới ngoại suy */
+ var w=Math.min(day/7,1),proj=fixedPlan;
+ cats.forEach(function(c){var id=c[0];if(id==="tro")return;var t=tot[id];
+  if(id==="an"||id==="dilai"){var rate=w*(t/day)+(1-w)*(catBud[id]/dim);proj+=t+rate*(dim-day)}
+  else proj+=(day>=10?Math.max(t,t/day*dim):t)});
  var left=budget-spent,perDay=Math.max(0,budget-fixedPlan-varSp)/daysLeft;
  var ratio=budget>0?proj/budget:(proj>0?9:0);
  var score=ratio<=.85?100:ratio<=1?Math.round(100-(ratio-.85)/.15*20):Math.max(0,Math.round(80-(ratio-1)*160));
