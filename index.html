@@ -488,7 +488,7 @@ function netErr(e){return /Failed to fetch|NetworkError|Load failed/i.test(Strin
 function errMsg(e){return netErr(e)?"Không kết nối được tới AI. Hãy thử lại sau.":String((e&&e.message)||e)}
 /* opt: {question, query, web: "auto" | true | false} */
 function proxyCall(url,prompt,opt,onText){opt=opt||{};
- var body={task:"chat",prompt:prompt,question:opt.question||"",query:opt.query||"",web:opt.web===undefined?false:opt.web,history:opt.history||[]};
+ var body={task:opt.task||"chat",prompt:prompt,question:opt.question||"",query:opt.query||"",web:opt.web===undefined?false:opt.web,history:opt.history||[],data:opt.data||null};
  return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
  .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||("Lỗi HTTP "+r.status));return j})})
  .then(function(j){var t=j.text||"";if(onText)onText(t);return{text:t,sources:j.sources||[],usedWeb:!!j.used_web,webNote:j.web_note||""}})}
@@ -499,9 +499,14 @@ function callAI(prompt,onText,opt){
  return Promise.reject(new Error("Chưa có AI khả dụng."))}
 if(window.claude&&claude.use){claude.use("sample").then(function(s){AI=s}).catch(function(){})}
 function addSrc(box,r){
- if(!r||!r.webNote)return;
+ if(!r)return;
  var d=document.createElement("div");d.style.cssText="margin-top:8px;font-size:.8rem;color:var(--muted);white-space:normal";
- d.textContent="ℹ️ "+r.webNote;box.appendChild(d)}
+ if(r.webNote){var n=document.createElement("div");n.textContent="ℹ️ "+r.webNote;d.appendChild(n)}
+ if(r.sources&&r.sources.length){var w=document.createElement("div");w.appendChild(document.createTextNode("Nguồn tham khảo: "));
+  r.sources.slice(0,4).forEach(function(x){if(!x||!/^https?:\/\//.test(x.url))return;var l=document.createElement("a");
+   l.href=x.url;l.target="_blank";l.rel="noopener noreferrer";l.textContent=x.domain||x.title;l.style.marginRight="10px";w.appendChild(l)});
+  if(w.childNodes.length>1)d.appendChild(w)}
+ if(d.childNodes.length)box.appendChild(d)}
 function ctx(){var pl=items.filter(function(i){return i.m!==null}).slice(0,30).map(function(i){return i.n+" ("+i.a+", cách NEU "+i.m+" m, "+i.p+")"}).join("; ");
  var s=last&&last.spent?"Chi tiêu tháng này: tiền sinh hoạt "+vnd(last.inc)+", mục tiêu tiết kiệm "+S.goal+"%, ngân sách chi "+vnd(last.budget)+", đã chi "+vnd(last.spent)+", còn lại "+vnd(last.left)+", nên chi tối đa "+vnd(last.perDay)+" mỗi ngày.":"Người dùng chưa nhập chi tiêu.";
  return "Dữ liệu của trang Dynamic NEU (sinh viên Đại học Kinh tế Quốc dân, 207 Giải Phóng, Hà Nội). Trả lời tiếng Việt, dưới 120 từ. Quán và khoảng cách chỉ lấy từ dữ liệu này; giá cả, thủ tục và tin mới chỉ lấy từ phần thông tin trên mạng nếu có. Thiếu dữ liệu thì nói rõ.\nQuán quanh NEU: "+pl+"\nTuyến xe buýt qua NEU: 18, 47B, 21A, 21B, 25, 32, 23, 03, 03B, 08, 19, 24, 26, 28, 41.\n"+s}
@@ -518,9 +523,11 @@ $("x-aibtn").onclick=function(){var o=$("x-ai");o.style.display="block";
  if(!last||!last.spent){o.textContent="Hãy thêm vài khoản chi trước để AI có số liệu phân tích.";return}
  if(!hasAI()){o.textContent="AI chưa sẵn sàng. Hãy xem nhận xét tự động ở trên.";return}
  o.textContent=webOn?"AI đang phân tích và tìm mức chi phổ biến trên mạng...":"AI đang phân tích...";
- var rows=cats.map(function(c){return c[1]+": đã chi "+vnd(last.tot[c[0]])+" / ngân sách "+vnd(last.catBud[c[0]])}).join("; ");
- var q=ctx()+"\nDữ liệu chi tiêu: tiền sinh hoạt "+vnd(S.inc)+", mục tiêu tiết kiệm "+S.goal+"%, theo nhóm: "+rows+".\nNhiệm vụ: đánh giá ngắn gọn tình hình, nếu có thông tin trên mạng thì lồng vào nhận xét mức chi phổ biến của sinh viên Hà Nội để so sánh, không dán link hay số trích dẫn. Nêu 3 việc cụ thể nên làm để tiết kiệm, ưu tiên gợi ý từ quán và tuyến xe buýt có trong dữ liệu. Dưới 180 từ, đánh số 1 đến 3.";
- callAI(q,function(tx){o.textContent=tx},{question:"Mức chi tiêu trung bình của sinh viên Hà Nội",query:"mức chi tiêu trung bình mỗi tháng của sinh viên Hà Nội giá cơm sinh viên giá phòng trọ "+new Date().getFullYear(),web:webOn?true:false})
+ var nw=new Date(),ym=ymd(nw).slice(0,7);
+ var data={income:S.inc,goal:S.goal,day:nw.getDate(),daysInMonth:new Date(nw.getFullYear(),nw.getMonth()+1,0).getDate(),
+  categories:cats.map(function(c){return{id:c[0],name:c[1],spent:last.tot[c[0]],budget:last.catBud[c[0]]}}),
+  expenses:S.ex.filter(function(e){return e.d.slice(0,7)===ym}).slice(-80).map(function(e){return{d:e.d,c:e.c,a:e.a,n:e.n}})};
+ callAI(ctx(),function(tx){o.textContent=tx},{task:"analyze",data:data,web:webOn?true:false})
  .then(function(x){o.textContent=(x.text||"AI chưa trả lời, hãy thử lại.")+"\n\n— "+x.src;addSrc(o,x)}).catch(function(e){o.textContent="Lỗi: "+errMsg(e)})};
 
 })();
